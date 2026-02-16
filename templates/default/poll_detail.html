@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h1>{{ poll.subject }} - 點餐頁面</h1>
+
+<form action="/submit_order/" method="POST">
+    {% csrf_token %} <h3>1. 選擇飲料</h3>
+    <select name="drink">
+        {% for option in options %}
+            <option value="{{ option.id }}">{{ option.title }} (${{ option.price }})</option>
+        {% endfor %}
+    </select>
+
+    <h3>2. 甜度</h3>
+    <select name="sugar">
+        {% for s in sugar_levels %}
+            <option value="{{ s.id }}">{{ s.level }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>3. 冰塊</h3>
+    <select name="ice">
+        {% for i in ice_levels %}
+            <option value="{{ i.id }}">{{ i.level }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>4. 加料 (可複選)</h3>
+    {% for t in toppings %}
+        <input type="checkbox" name="toppings" value="{{ t.id }}"> {{ t.name }} (+${{ t.price }})<br>
+    {% endfor %}
+
+    <br>
+    <button type="submit" class="order-btn">確認下單</button>
+</form>
+{% endblock %}

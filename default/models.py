@@ -8,7 +8,7 @@ class Poll(models.Model):       #飲料店
     def __str__(self):
         return str(self.id)+ ")" + self.subject
 class Option(models.Model):         #飲料
-    poll_id = models.IntegerField()
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='options')
     title = models.CharField(max_length=200)#飲料名稱
     count = models.IntegerField(default=0)#計數
     price = models.IntegerField(default=0)#價格
