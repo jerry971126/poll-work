@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    /* 警告容器樣式 */
+    .delete-container {
+        background: white;
+        padding: 50px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        max-width: 600px;
+        margin: 80px auto;
+        text-align: center;
+        border-top: 10px solid #e74c3c; /* 紅色警告條 */
+    }
+
+    /* 標題與文字加大 */
+    h1 { font-size: 3rem; color: #c0392b; margin-bottom: 30px; }
+    .warning-text { font-size: 1.5rem; color: #2c3e50; margin-bottom: 40px; line-height: 1.6; }
+    .object-name { font-weight: bold; color: #e74c3c; text-decoration: underline; }
+
+    /* 刪除按鈕動畫 */
+    .delete-btn {
+        display: inline-block;
+        padding: 15px 40px;
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.6rem; /* 大字體按鈕 */
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .delete-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+    }
+
+    .cancel-link {
+        display: block;
+        margin-top: 25px;
+        font-size: 1.2rem;
+        color: #7f8c8d;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block main %} <div class="delete-container">
+    <h1>⚠️ 刪除確認</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        <p class="warning-text">
+            您確定要永久刪除 <span class="object-name">"{{ object }}"</span> 嗎？<br>
+            這筆紀錄刪除後將無法復原！
+        </p>
+        <button type="submit" class="delete-btn">🔥 是的，我要刪除</button>
+    </form>
+    <a href="/store/" class="cancel-link">← 點錯了，回首頁</a>
+</div>
+{% endblock %}

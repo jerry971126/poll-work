@@ -2,115 +2,88 @@
 
 {% block extra_css %}
 <style>
-    
-    .order-form-container {
-        background: white;
-        padding: 30px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        margin-top: 20px;
-    }
+    .order-form-container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 20px; }
+    h1 { font-size: 2.5rem; text-align: center; color: #2c3e50; }
+    h3 { font-size: 1.5rem; color: #e67e22; border-bottom: 2px solid #f1c40f; padding-bottom: 5px; margin-top: 25px; }
 
+    /* 管理區塊樣式 */
+    .admin-box { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px dashed #ccc; }
+    .option-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .price-tag { color: #e74c3c; font-weight: bold; margin-left: 10px; }
     
-    h1 {
-        font-size: 2.5rem; 
-        color: #2c3e50;
-        margin-bottom: 20px;
-        text-align: center;
-    }
+    /* 按鈕樣式 */
+    .btn-edit { color: #f39c12; text-decoration: none; font-size: 1.1rem; margin-right: 10px; }
+    .btn-delete { color: #e74c3c; text-decoration: none; font-size: 1.1rem; }
+    .btn-add { display: inline-block; margin-top: 10px; color: #27ae60; text-decoration: none; font-weight: bold; font-size: 1.2rem; }
 
-    h3 {
-        font-size: 1.5rem; 
-        color: #e67e22;
-        border-bottom: 2px solid #f1c40f;
-        padding-bottom: 5px;
-        margin-top: 25px;
-    }
-
-    
-    select, input[type="text"] {
-        width: 100%;
-        padding: 12px;
-        font-size: 1.2rem; 
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        margin-top: 10px;
-    }
-
-    
-    .topping-item {
-        font-size: 1.2rem; 
-        margin: 10px 0;
-        display: block;
-    }
-
-    
     .submit-btn {
-        background-color: #27ae60;
-        color: white;
-        border: none;
-        padding: 15px 30px;
-        font-size: 1.5rem; 
-        border-radius: 50px;
-        cursor: pointer;
-        width: 100%;
-        margin-top: 30px;
-        transition: 0.3s;
+        background-color: #27ae60; color: white; border: none; padding: 15px 30px;
+        font-size: 1.5rem; border-radius: 50px; cursor: pointer; width: 100%;
+        margin-top: 30px; transition: 0.3s;
     }
-
-    .submit-btn:hover {
-        background-color: #2ecc71;
-        transform: scale(1.02);
-    }
+    .submit-btn:hover { background-color: #2ecc71; transform: scale(1.02); }
 </style>
 {% endblock %}
 
-{% block main %} <h1>🍹 {{ poll.subject }}</h1>
+{% block main %}
+<h1>🍹 {{ poll.subject }}</h1>
+
+<div class="admin-box">
+    <strong>🛠️ 飲品選單管理</strong>
+    <div style="margin-top: 10px;">
+        {% for option in options %}
+        <div class="option-row">
+            <span>
+                {{ option.title }} <span class="price-tag">${{ option.price }}</span>
+            </span>
+            <div>
+                <a href="/option/{{ option.id }}/update/" class="btn-edit">🖊️ 修改價格/名稱</a>
+                <a href="/option/{{ option.id }}/delete/" class="btn-delete">🗑️ 刪除</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="/option/create/{{ poll.id }}/" class="btn-add">➕ 新增飲品選項</a>
+</div>
 
 <div class="order-form-container">
     <form action="/submit_order/" method="POST">
         {% csrf_token %}
         
         <h3>1. 選擇你想喝的</h3>
-        <select name="drink">
+        <select name="drink" required>
+            <option value="" disabled selected>--- 請選擇飲品 ---</option>
             {% for option in options %}
                 <option value="{{ option.id }}">{{ option.title }} — ${{ option.price }}</option>
             {% endfor %}
         </select>
 
         <h3>2. 甜度(必填)</h3>
-        <select name="sugar" required><option value="" disabled selected>--- 請選擇甜度</option>
+        <select name="sugar" required>
+            <option value="" disabled selected>--- 請選擇甜度 ---</option>
             {% for s in sugar_levels %}
                 <option value="{{ s.id }}">{{ s.level }}</option>
             {% endfor %}
         </select>
 
         <h3>3. 冰塊(必填)</h3>
-        <select name="ice" required><option value="" disabled selected>---請選擇冰塊---</option>
+        <select name="ice" required>
+            <option value="" disabled selected>--- 請選擇冰塊 ---</option>
             {% for i in ice_levels %}
                 <option value="{{ i.id }}">{{ i.level }}</option>
             {% endfor %}
         </select>
 
-    <h3>4. 想要加點料嗎？ (可複選)</h3>
-    <div class="topping-container">
-        {% for t in toppings %}
-        <div class="topping-item">
-            <input type="checkbox" name="toppings" value="{{ t.id }}" id="topping_{{ t.id }}">
-            <label for="topping_{{ t.id }}" style="font-size: 1.3rem;"> 
-                {{ t.name }} <span style="color: #27ae60;">(+${{ t.price }})</span>
+        <h3>4. 想要加點料嗎？ (可複選)</h3>
+        <div>
+            {% for t in toppings %}
+            <label style="font-size: 1.2rem; display: block; margin: 5px 0;">
+                <input type="checkbox" name="toppings" value="{{ t.id }}"> {{ t.name }} (+${{ t.price }})
             </label>
+            {% endfor %}
         </div>
-        {% empty %}
-        <p>這家店目前沒提供加料喔！</p>
-        {% endfor %}
-    </div>
 
         <button type="submit" class="submit-btn">確認下單並回傳資料</button>
     </form>
 </div>
-
-<p style="text-align: center; margin-top: 20px;">
-    <a href="/store/" style="font-size: 1.1rem; color: #7f8c8d;">← 返回店家清單</a>
-</p>
 {% endblock %}

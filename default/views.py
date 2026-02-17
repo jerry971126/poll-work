@@ -2,6 +2,7 @@ from django.shortcuts import render ,redirect, get_object_or_404
 from django.views.generic import ListView , DetailView
 from .models import *
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
+from django.urls import reverse
 
 # Create your views here.
 class PollList(ListView):
@@ -52,3 +53,27 @@ class PollUpdate(UpdateView):
      fields = ['subject']
      success_url = '/store/'
      template_name = 'default/general_form.html'
+class PollDelete(DeleteView):
+     model = Poll
+     success_url = '/store/'
+     template_name = 'default/confirm_delete.html'
+class OptionCreate(CreateView):
+    model = Option
+    fields = ['title','price']
+    template_name = 'default/general_form.html'
+    def get_success_url(self):
+        return '/store/'+str(self.object.poll_id)+'/'
+    def form_valid(self, form):
+        form.instance.poll_id = self.kwargs['pid']
+        return super().form_valid(form)
+class OptionUpdate(UpdateView):
+    model = Option
+    fields = ['title','price']
+    template_name = 'default/general_form.html'
+    def get_success_url(self):
+        return '/store/'+str(self.object.poll_id)+'/'
+class OptionDelete(DeleteView):
+    model = Option
+    template_name = 'default/confirm_delete.html'
+    def get_success_url(self):
+        return reverse('poll_view', kwargs={'pk': self.object.poll_id})
