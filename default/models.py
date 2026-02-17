@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Poll(models.Model):       #飲料店
-    subject = models.CharField(max_length=200)
+    subject = models.CharField(max_length=200, verbose_name="店名")
     data_created = models.DateField(auto_now_add=True)
     def __str__(self):
         return str(self.id)+ ")" + self.subject
@@ -40,9 +40,15 @@ class Topping(models.Model):
 class Order(models.Model):
     drink = models.ForeignKey(Option, on_delete=models.CASCADE)
     sugar = models.ForeignKey(SugarLevel, on_delete=models.SET_NULL, null=True)
-    ice = models.ForeignKey(IceLevel, on_delete=models.SET_NULL, null=True)
+    ice = models.ForeignKey(IceLevel, on_delete=models.SET_NULL, null=True) #甜度冰塊這裡null=true照理來講因為必填的關係要把它改掉但我懶了麻煩資料庫要重灌
     toppings = models.ManyToManyField(Topping, blank=True) # 可以選多個料或不加
     customer_name = models.CharField(max_length=100)
     
     def __str__(self):
         return f"{self.customer_name} 點了 {self.drink.title}"
+    def total_price(self):
+        # 飲品價格
+        price = self.drink.price if self.drink else 0
+        # 加上所有加料的價格
+        topping_total = sum([t.price for t in self.toppings.all()])
+        return price + topping_total
