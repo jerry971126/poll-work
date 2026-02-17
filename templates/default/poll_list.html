@@ -3,53 +3,80 @@
 {% block extra_css %}
 <style>
     h1 { font-size: 3rem; text-align: center; color: #2c3e50; margin-bottom: 30px; }
+    
+    /* 管理員專用：新增按鈕動畫 */
     .create-link {
         display: inline-block; padding: 12px 30px; background-color: #2ecc71; color: white;
         text-decoration: none; font-size: 1.5rem; border-radius: 50px; transition: 0.3s;
+        box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
     }
     .create-link:hover { transform: scale(1.1); background-color: #27ae60; }
     
+    /* 清單卡片設計 */
     ul { list-style: none; padding: 0; }
     li {
         background: white; margin-bottom: 15px; padding: 20px; border-radius: 15px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.05); font-size: 1.5rem;
         display: flex; justify-content: space-between; align-items: center; transition: 0.3s;
     }
-    li:hover { transform: translateX(10px); }
-    .poll-subject { font-weight: bold; color: #3498db; text-decoration: none; }
+    li:hover { transform: translateX(10px); background-color: #fcfcfc; }
 
-    /* 優化後的總表入口 */
+    .poll-info { color: #7f8c8d; font-size: 1rem; margin-right: 15px; }
+    .poll-subject { font-weight: bold; color: #3498db; text-decoration: none; }
+    
+    /* 操作按鈕組 */
+    .btn-group a {
+        padding: 5px 15px; border-radius: 5px; text-decoration: none;
+        font-size: 1.1rem; margin-left: 10px; transition: 0.2s;
+    }
+    .btn-edit { background: #f1c40f; color: black; }
+    .btn-delete { background: #e74c3c; color: white; }
+
+    /* 總表入口區塊 */
     .stats-link-container { margin-top: 60px; padding: 30px; background: #f8f9fa; border-radius: 20px; border: 2px dashed #9b59b6; text-align: center; }
     .btn-stats {
-        display: inline-flex; align-items: center; padding: 20px 45px;
+        display: inline-flex; align-items: center; padding: 18px 40px;
         background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white !important;
-        text-decoration: none; font-size: 1.8rem; font-weight: 800; border-radius: 15px;
+        text-decoration: none; font-size: 1.6rem; font-weight: 800; border-radius: 15px;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .btn-stats:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 15px 30px rgba(155, 89, 182, 0.5); }
+    .btn-stats:hover { transform: translateY(-8px); box-shadow: 0 10px 25px rgba(155, 89, 182, 0.4); }
 </style>
 {% endblock %}
 
 {% block main %}
 <h1>🏫 店家投票與點餐主題</h1>
-<div style="text-align: center; margin-bottom: 25px;"><a href="create/" class="create-link">➕ 新增投票主題</a></div>
+
+{% if user.is_superuser %}
+<div style="text-align: center; margin-bottom: 25px;">
+    <a href="create/" class="create-link">➕ 新增投票主題 (管理員專用)</a>
+</div>
+{% endif %}
 
 <ul>
     {% for poll in poll_list %}
     <li>
         <div>
-            <span style="color: #7f8c8d; font-size: 1rem;">{{ poll.date_created|date:"Y-m-d" }}</span>
+            <span class="poll-info">{{ poll.date_created|date:"Y-m-d" }}</span>
             <a href="{{ poll.id }}/" class="poll-subject">{{ poll.subject }}</a>
         </div>
+        
+        {% if user.is_superuser %}
         <div class="btn-group">
-            <a href="{{ poll.id }}/update/" style="background: #f1c40f; padding: 5px 15px; border-radius: 5px; text-decoration: none; color: black;">修改</a>
-            <a href="{{ poll.id }}/delete/" style="background: #e74c3c; padding: 5px 15px; border-radius: 5px; text-decoration: none; color: white;">刪除</a>
+            <a href="{{ poll.id }}/update/" class="btn-edit">修改</a>
+            <a href="{{ poll.id }}/delete/" class="btn-delete">刪除</a>
         </div>
+        {% endif %}
     </li>
+    {% empty %}
+    <li style="justify-content: center;">目前還沒有任何店家，快去新增一個吧！</li>
     {% endfor %}
 </ul>
 
 <div class="stats-link-container">
+    <p style="font-size: 1.2rem; color: #8e44ad; margin-bottom: 15px; font-weight: bold;">
+        想要統計大家今天點了什麼嗎？
+    </p>
     <a href="/all_order/" class="btn-stats">📊 點我進入訂購彙總大表</a>
 </div>
 {% endblock %}

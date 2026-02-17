@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.views.generic import RedirectView
 
 urlpatterns = [
     path('',RedirectView.as_view(url='store')),
+        path('accounts/', include('django.contrib.auth.urls')),
     path('store/' , views.PollList.as_view()),
     path('store/<int:pk>/', views.PollDetail.as_view() , name='poll_view'),
     path('submit_order/', views.submit_order, name='submit_order'),
@@ -15,4 +16,5 @@ urlpatterns = [
     path('option/create/<int:pid>/', views.OptionCreate.as_view()), 
     path('option/<int:pk>/update/', views.OptionUpdate.as_view()),
     path('option/<int:pk>/delete/', views.OptionDelete.as_view()),
+    path('register/', views.register, name='register'),
 ]

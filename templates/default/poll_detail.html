@@ -6,15 +6,12 @@
     h1 { font-size: 2.5rem; text-align: center; color: #2c3e50; }
     h3 { font-size: 1.5rem; color: #e67e22; border-bottom: 2px solid #f1c40f; padding-bottom: 5px; margin-top: 25px; }
 
-    /* 管理區塊樣式 */
-    .admin-box { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px dashed #ccc; }
-    .option-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .price-tag { color: #e74c3c; font-weight: bold; margin-left: 10px; }
+    /* 管理員管理區塊樣式 */
+    .admin-box { background: #fdf2f2; padding: 20px; border-radius: 15px; border: 2px dashed #e74c3c; margin-bottom: 30px; }
+    .manage-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #ddd; font-size: 1.2rem; }
     
-    /* 按鈕樣式 */
-    .btn-edit { color: #f39c12; text-decoration: none; font-size: 1.1rem; margin-right: 10px; }
-    .btn-delete { color: #e74c3c; text-decoration: none; font-size: 1.1rem; }
-    .btn-add { display: inline-block; margin-top: 10px; color: #27ae60; text-decoration: none; font-weight: bold; font-size: 1.2rem; }
+    select { width: 100%; padding: 12px; font-size: 1.2rem; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; }
+    .topping-item { font-size: 1.2rem; margin: 10px 0; display: block; }
 
     .submit-btn {
         background-color: #27ae60; color: white; border: none; padding: 15px 30px;
@@ -28,22 +25,25 @@
 {% block main %}
 <h1>🍹 {{ poll.subject }}</h1>
 
+{% if user.is_superuser %}
 <div class="admin-box">
-    <strong>🛠️ 飲品選單管理</strong>
-    <div style="margin-top: 10px;">
-        {% for option in options %}
-        <div class="option-row">
-            <span>
-                {{ option.title }} <span class="price-tag">${{ option.price }}</span>
-            </span>
-            <div>
-                <a href="/option/{{ option.id }}/update/" class="btn-edit">🖊️ 修改價格/名稱</a>
-                <a href="/option/{{ option.id }}/delete/" class="btn-delete">🗑️ 刪除</a>
-            </div>
+    <strong style="color: #c0392b;">🛠️ 菜單管理 (僅管理員可修改/刪除)</strong>
+    {% for option in options %}
+    <div class="manage-item">
+        <span>{{ option.title }} — ${{ option.price }}</span>
+        <div>
+            <a href="/option/{{ option.id }}/update/" style="color: #f39c12;">🖊️ 修改</a>
+            <a href="/option/{{ option.id }}/delete/" style="color: #c0392b; margin-left: 10px;">🗑️ 刪除</a>
         </div>
-        {% endfor %}
     </div>
-    <a href="/option/create/{{ poll.id }}/" class="btn-add">➕ 新增飲品選項</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div style="margin-top: 15px; text-align: center;">
+    <a href="/option/create/{{ poll.id }}/" style="display: inline-block; padding: 10px 20px; background-color: #27ae60; color: white; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 1.2rem;">
+        ➕ 我要新增這家店的飲料選項
+    </a>
 </div>
 
 <div class="order-form-container">
@@ -75,15 +75,24 @@
         </select>
 
         <h3>4. 想要加點料嗎？ (可複選)</h3>
-        <div>
+        <div class="topping-container">
             {% for t in toppings %}
-            <label style="font-size: 1.2rem; display: block; margin: 5px 0;">
-                <input type="checkbox" name="toppings" value="{{ t.id }}"> {{ t.name }} (+${{ t.price }})
-            </label>
+            <div class="topping-item">
+                <input type="checkbox" name="topping" value="{{ t.id }}" id="topping_{{ t.id }}">
+                <label for="topping_{{ t.id }}" style="font-size: 1.3rem;"> 
+                    {{ t.name }} <span style="color: #27ae60;">(+${{ t.price }})</span>
+                </label>
+            </div>
+            {% empty %}
+            <p>這家店目前沒提供加料喔！</p>
             {% endfor %}
         </div>
 
-        <button type="submit" class="submit-btn">確認下單並回傳資料</button>
+        <button type="submit" class="submit-btn">✅ 確認下單並回傳資料</button>
     </form>
 </div>
+
+<p style="text-align: center; margin-top: 20px;">
+    <a href="/store/" style="font-size: 1.1rem; color: #7f8c8d; text-decoration: none;">← 返回店家清單</a>
+</p>
 {% endblock %}
